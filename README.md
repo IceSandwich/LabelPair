@@ -1,7 +1,7 @@
 # LabelPair
 ![banner](imgs/banner.gif)
 
-A booru-style tagging tool in browser, which used for training stable diffusion checkpoints, hypernetworks, embeddings, lora, etc.
+A booru-style tagging tool in browser, which used for training stable diffusion lora, etc.
 
 Try here: [https://icesandwich.github.io/LabelPair/](https://icesandwich.github.io/LabelPair/)
 
@@ -10,7 +10,7 @@ Try here: [https://icesandwich.github.io/LabelPair/](https://icesandwich.github.
 # Usage
 ## Prepare dataset
 
-   Use your favorite tagging model to tag your images automatically first. Personally i use [this](https://github.com/hollowstrawberry/kohya-colab/blob/main/Dataset_Maker.ipynb).
+   Use your favorite tagging model or method to tag your images automatically first. Personally i use [this](https://github.com/hollowstrawberry/kohya-colab/blob/main/Dataset_Maker.ipynb) which base on [kohya_sdscript](https://github.com/kohya-ss/sd-scripts/blob/main/finetune/make_captions.py).
 
    No matter what method you use, your dataset should look like this:
    ```
@@ -40,10 +40,12 @@ In **MultiSelect** mode, you can select some images to add/remove/rename tag. If
 
 **Retrieve** can retrieve images that doesn't contain this tag. Useful to balance you tags.
 
-**Analysis** shows your tags distribution at the moment.
+**Analysis** shows your tags distribution.
 
 ## Save your world
 
 Click `Export` at the top. This will only save txt files. You may consider override source tag files or use diff compare tool to double check.
 
- 
+# Build
+
+This project doesn't use webpack so it's unnecessary to build.
