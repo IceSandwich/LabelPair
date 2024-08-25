@@ -13,13 +13,14 @@ Try here: [https://icesandwich.github.io/LabelPair/](https://icesandwich.github.
    Use your favorite tagging model to tag your images automatically first. Personally i use [this](https://github.com/hollowstrawberry/kohya-colab/blob/main/Dataset_Maker.ipynb).
 
    No matter what method you use, your dataset should look like this:
-
-   ┏━━ :open_file_folder: dataset
-   ┣━━━━ :flower_playing_cards: 1.png
-   ┣━━━━ :page_facing_up: 1.txt
-   ┣━━━━ :flower_playing_cards: 2.png
-   ┣━━━━ :page_facing_up: 2.txt
-   ┗━━━━ ...
+   ```
+   dataset
+       1.png
+       1.txt
+       2.png
+       2.txt
+       ...
+   ```
 
 ​	The txt contains tags of the image with the same filename, its content looks like this:
 
@@ -41,7 +42,7 @@ In **MultiSelect** mode, you can select some images to add/remove/rename tag. If
 
 **Analysis** shows your tags distribution at the moment.
 
-## Save
+## Save Your world
 
 Click `Export` at the top. This will only save txt files. You may consider override source tag files or use diff compare tool to double check.
 
