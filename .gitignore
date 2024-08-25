@@ -1,1 +1,10 @@
 /imgs/*.psd
+
+/imgs/17.png
+/imgs/21.png
+/imgs/22.png
+/js/*.min.js
+/js/*.js.map
+/fonts
+/css/*.min.css
+/css/fontawesome.css

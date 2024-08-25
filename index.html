@@ -1,347 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>LabelPair</title>
-	<!-- <link href="css/bootstrap.min.css" rel="stylesheet">
+
+	<link rel="stylesheet" href="css/index.css">
+	<link rel="stylesheet" href="css/card.css">
+	<link rel="stylesheet" href="css/modal_template.css">
+
+	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<link href="css/font-awesome.min.css" rel="stylesheet">
 	<script src="js/jquery.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script src="js/jszip.min.js"></script>
 	<script src="js/FileSaver.min.js"></script>
-	<script src="js/echarts.min.js"></script> -->
+	<script src="js/echarts.min.js"></script>
 
-	<!-- Production Mode -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+	<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/jszip@3.x/dist/jszip.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
-
-
-	<style>
-		.card {
-			display: flex;
-			flex-direction: column;
-			background-color: #fff;
-			background-clip: border-box;
-			border: 1px solid rgba(0, 0, 0, .125);
-			border-radius: .25rem;
-		}
-
-		.card-header {
-			margin-top: 0;
-			padding: 1rem 2rem;
-			margin-bottom: 0;
-			background-color: rgba(0, 0, 0, 0.03);
-			border-bottom: 1px solid rgba(0, 0, 0, .125);
-			align-items: center;
-			display: flex;
-			height: 6rem;
-		}
-
-		.card-header:first-child {
-			border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
-		}
-
-		.drop-area {
-			height: 16rem;
-			background-color: #eee;
-			border: 3px dashed #aaa;
-			border-radius: 1rem;
-
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			margin-bottom: 3rem;
-		}
-
-		.drop-area * {
-			text-align: center;
-			width: 100%;
-			user-select: none;
-			font-weight: bold;
-			color: #aaa;
-			font-size: large;
-		}
-
-		.drop-area i {
-			font-size: xx-large;
-		}
-
-		.drop-area-highlight {
-			background-color: lightgray;
-		}
-
-		.card .btn-group {
-			margin-left: 1rem;
-		}
-
-		.card-body .row, #RetrieveTagModal .row {
-			margin: 1rem 0;
-		}
-
-		.image-card {
-			display: flex;
-		}
-
-		.image-card img {
-			width: 100%;
-			background-color: #eee;
-			margin-left: auto;
-			margin-right: auto;
-		}
-
-		.image-card img:hover {
-			box-shadow: 0 0.3rem 0.8rem;
-		}
-
-		.on-multiselect {}
-
-		.on-multiselect .on-select img, #RetrieveTagModal .on-select img {
-			background-color: lightgreen;
-			padding: 1.5rem;
-		}
-
-		.larger-modal .modal-dialog {
-			width: 76%;
-		}
-
-		.larger-modal .modal-body {
-			height: 68rem;
-		}
-
-		#Retrieve-Container {
-			overflow: scroll;
-			height: 100%;
-		}
-
-		.template {
-			display: none;
-		}
-
-		#PromptBoxes>div {
-			margin-bottom: 1.5rem;
-
-			&:last-child {
-				margin-bottom: 0;
-			}
-		}
-		#Analysis-Histogram {
-			width: 100%; 
-			height: 48rem;
-		}
-		#AnalysisTagModal .container {
-			font-size: large;
-		}
-
-		footer {
-			height: 3rem;
-		}
-	</style>
+	<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script> -->
 </head>
-
 <body>
 	<!-- Modals -->
-	<div class="modal fade" id="AddTagModal" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<span class="modal-title">Add tag</span>
-					<button type="button" class="close" data-dismiss="modal">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<form id="editForm" onsubmit="document.getElementById('Add-Submit').click(); return false;">
-						<div class="form-group">
-							<span>Add a tag for </span>
-							<label id="Add-ImgCount">Number</label>
-							<span> images</span>
-							<label hidden id="Add-HiddenSrcTag"></label>
-							<input type="text" class="form-control" id="Add-Tag" name="addTag">
-						</div>
-					</form>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-					<button type="button" class="btn btn-primary" onclick="addTag(event)" id="Add-Submit">Add</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="modal fade" id="RenameTagModal" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-dialog modal-lg" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<span class="modal-title">Rename tag</span>
-					<button type="button" class="close" data-dismiss="modal">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<form id="editForm" onsubmit="document.getElementById('Rename-Submit').click(); return false;">
-						<div class="form-group">
-							<span>Rename </span>
-							<label id="Rename-SrcTag">TagName</label>
-							<span> of selected </span>
-							<label id="Rename-ImgCount">Number</label>
-							<span> images to</span>
-							<input type="text" class="form-control" id="Rename-DstTag" name="dstTag">
-						</div>
-					</form>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-					<button type="button" class="btn btn-primary" onclick="renameTag(event)"
-						id="Rename-Submit">Rename</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="modal fade" id="DeleteTagModal" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<span class="modal-title">Delete Confirmation</span>
-					<button type="button" class="close" data-dismiss="modal">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<span>Delete </span>
-					<label id="Delete-Tag">TagName</label>
-					<span> for selected </span>
-					<label id="Delete-ImgCount">Number</label>
-					<span> images?</span>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-					<button type="button" class="btn btn-danger" onclick="deleteTag(event)">Delete</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="modal fade larger-modal" id="RetrieveTagModal" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<span class="modal-title">Retrieve <label id="Retrieve-Count">Num</label> images to <label id="Retrieve-Tag">Tag</label></span>
-					<button type="button" class="close" data-dismiss="modal">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<div class="row template" id="Template-RetrieveBox-Row">
-						<div class="col-md-4 image-card" data-id="-1" onclick="selectImage(event, true); updateRetrieve();" id="Template-RetrieveBox-Image">
-							<img src="17.png" class="img-fluid" title="17.png">
-						</div>
-						<div class="col-md-4 image-card" data-id="-1" onclick="selectImage(event, true); updateRetrieve();">
-							<img src="21.png" class="img-fluid" title="21.png">
-						</div>
-						<div class="col-md-4 image-card" data-id="-1" onclick="selectImage(event, true); updateRetrieve();">
-							<img src="22.png" class="img-fluid" title="22.png">
-						</div>
+	<header>
+		<div class="modal fade" id="AddModal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<span class="modal-title">Add tag</span>
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span>
+						</button>
 					</div>
-					<div class="container" id="Retrieve-Container">
+					<div class="modal-body">
+						<form id="editForm" onsubmit="document.getElementById('Add-Submit').click(); return false;">
+							<div class="form-group">
+								<span>Add a tag for </span>
+								<label id="Add-ImgCount">Number</label>
+								<span> images</span>
+								<label hidden id="Add-HiddenSrcTag"></label>
+								<input type="text" class="form-control" id="Add-Tag" name="addTag">
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-primary" onclick="ApplyAddKeyword(event)" id="Add-Submit">Add</button>
 					</div>
 				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-					<button type="button" class="btn btn-primary" onclick="retrieveImages(event)">Retrieve <span id="Retrieve-Num">Num</span> images</button>
-				</div>
 			</div>
 		</div>
-	</div>
-	<div class="modal fade larger-modal" id="AnalysisTagModal" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<span class="modal-title">Analysis</span>
-					<button type="button" class="close" data-dismiss="modal">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<div class="container">
-						<div class="row">
-							<div class="col-md-2 text-right">Total images: </div>
-							<label class="col-md-10" id="Analysis-TotalImages"></label>
-						</div>
-						<div class="row">
-							<div class="col-md-2 text-right">Trigger words: </div>
-							<label class="col-md-10" id="Analysis-TriggerWords"></label>
-						</div>
-						<div class="row">
-							<div id="Analysis-Histogram"></div>
-						</div>
+		<div class="modal fade" id="RenameModal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<span class="modal-title">Rename tag</span>
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<form id="editForm" onsubmit="document.getElementById('Rename-Submit').click(); return false;">
+							<div class="form-group">
+								<span>Rename </span>
+								<label id="Rename-SrcTag">TagName</label>
+								<span> of selected </span>
+								<label id="Rename-ImgCount">Number</label>
+								<span> images to</span>
+								<input type="text" class="form-control" id="Rename-DstTag" name="dstTag">
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-primary" onclick="ApplyRenameKeyword(event)"
+							id="Rename-Submit">Rename</button>
 					</div>
 				</div>
-				<div class="modal-footer">
-					
+			</div>
+		</div>
+		<div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<span class="modal-title">Delete Confirmation</span>
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<span>Delete </span>
+						<label id="Delete-Tag">TagName</label>
+						<span> for selected </span>
+						<label id="Delete-ImgCount">Number</label>
+						<span> images?</span>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-danger" onclick="ApplyDeleteKeyword(event)">Delete</button>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+		<div class="modal fade larger-modal" id="RetrieveModal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<span class="modal-title">Retrieve <label id="Retrieve-Count">Num</label> images to <label id="Retrieve-Tag">Tag</label></span>
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="row template" id="Template-RetrieveRow">
+							<div class="col-md-4 image-card" data-id="-1" onclick="SelectImage(event, true); UpdateRetrieve();" id="Template-RetrieveImg">
+								<img src="17.png" class="img-fluid" title="17.png">
+							</div>
+							<div class="col-md-4 image-card" data-id="-1" onclick="SelectImage(event, true); UpdateRetrieve();">
+								<img src="21.png" class="img-fluid" title="21.png">
+							</div>
+							<div class="col-md-4 image-card" data-id="-1" onclick="SelectImage(event, true); UpdateRetrieve();">
+								<img src="22.png" class="img-fluid" title="22.png">
+							</div>
+						</div>
+						<div class="container" id="RetrieveContainer">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-primary" onclick="ApplyRetrieveImages(event)">Retrieve <span id="Retrieve-Num">Num</span> images</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade larger-modal" id="AnalysisModal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<span class="modal-title">Analysis</span>
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="container">
+							<div class="row">
+								<div class="col-md-2 text-right">Total images: </div>
+								<label class="col-md-10" id="Analysis-TotalImages"></label>
+							</div>
+							<div class="row">
+								<div class="col-md-2 text-right">Trigger words: </div>
+								<label class="col-md-10" id="Analysis-TriggerWords"></label>
+							</div>
+							<div class="row">
+								<div id="Analysis-Histogram"></div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	
+	</header>
+	
 	<!-- Navbar -->
-	<nav class="navbar navbar-default" role="navigation">
-		<div class="container">
-			<div class="navbar-header">
-				<a class="navbar-brand" href="#">LabelPair</a>
-			</div>
+	<header>
+		<nav class="navbar navbar-default" role="navigation">
+			<div class="container">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#">LabelPair</a>
+				</div>
 
-			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-				<ul class="nav navbar-nav">
-					<li>
-						<a href="#" onclick="analysisProject()">Analysis</a>
-					</li>
-					<li>
-						<a href="#" onclick="exportProject()">Export</a>
-					</li>
-					<li>
-						<a href="#">About</a>
-					</li>
-				</ul>
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li>
+							<a href="#" onclick="onNavbarAnalysisClick()">Analysis</a>
+						</li>
+						<li>
+							<a href="#" onclick="onNavbarExportClick()">Export</a>
+						</li>
+						<li>
+							<a href="#" onclick="onNavbarAboutClick()">About</a>
+						</li>
+					</ul>
+				</div>
 			</div>
-		</div>
-	</nav>
+		</nav>
+	</header>
 
 	<main>
 		<div class="container">
-			<!-- Upload files area-->
+			<!-- Upload files area -->
 			<div class="col drop-area" id="DropArea">
 				<p><i class="fa fa-upload"></i></p>
-				<p>Drop images & txts here</p>
+				<p>Drop files here</p>
 			</div>
 
-			<div id="PromptBoxes">
 
-				<div class="card row template" onmouseenter="onEnterLeaveCard(event, true)"
-					onmouseleave="onEnterLeaveCard(event, false)" id="Template-PromptBox">
+			<div id="CardBoxes">
+				<div id="Template-CardBox" class="card row template" onmouseenter="onCardEnterLeave(event, true)"
+					onmouseleave="onCardEnterLeave(event, false)">
 					<div class="card-header">
 						<span>TagName</span>
 						<div class="btn-group hidden" style="margin-left: auto;">
-							<button class="btn btn-default" onclick="toggleMultiSelect(event)">MultiSelect</button>
+							<button class="btn btn-default" onclick="onMultiSelectClick(event)">MultiSelect</button>
 							<button class="btn btn-success hidden"
-								onclick="operatingTagClick(event, 'Add-HiddenSrcTag', 'Add-ImgCount', 'AddTagModal')">
+								onclick="onMultiSelectOperatorButtonClick(event, 'Add-HiddenSrcTag', 'Add-ImgCount', 'AddModal')">
 								<i class="fa fa-plus"></i> Add
 							</button>
 							<button class="btn btn-primary hidden"
-								onclick="operatingTagClick(event, 'Rename-SrcTag', 'Rename-ImgCount', 'RenameTagModal')">
+								onclick="onMultiSelectOperatorButtonClick(event, 'Rename-SrcTag', 'Rename-ImgCount', 'RenameModal')">
 								<i class="fa fa-pencil"></i> Rename
 							</button>
 							<button class="btn btn-danger hidden"
-								onclick="operatingTagClick(event, 'Delete-Tag', 'Delete-ImgCount', 'DeleteTagModal')">
+								onclick="onMultiSelectOperatorButtonClick(event, 'Delete-Tag', 'Delete-ImgCount', 'DeleteModal')">
 								<i class="fa fa-trash"></i> Delete
 							</button>
 						</div>
 						<div class="btn-group hidden">
-							<button class="btn btn-default" onclick="retrieveTagClick(event)">
+							<button class="btn btn-default" onclick="onRetrieveButtonClick(event)">
 								<!-- <i class="fa fa-paper-plane"></i> Retrieve (<span>Num</span> images) -->
 								Retrieve (<span>Num</span> images)
 							</button>
@@ -349,656 +234,33 @@
 					</div>
 					<div class="card-body">
 						<div class="container">
-							<div class="row" id="Template-PromptBox-Row">
-								<div class="col-md-4 image-card" data-id="-1" onclick="selectImage(event, false)"
-									id="Template-PromptBox-Image">
+							<div class="row" id="Template-CardRow">
+								<div class="col-md-4 image-card" data-id="-1" onclick="SelectImage(event, false)"
+									id="Template-CardImage">
 									<img src="17.png" class="img-fluid" title="17.png">
 								</div>
-								<div class="col-md-4 image-card" data-id="-1" onclick="selectImage(event, false)">
+								<div class="col-md-4 image-card" data-id="-1" onclick="SelectImage(event, false)">
 									<img src="21.png" class="img-fluid" title="21.png">
 								</div>
-								<div class="col-md-4 image-card" data-id="-1" onclick="selectImage(event, false)">
+								<div class="col-md-4 image-card" data-id="-1" onclick="SelectImage(event, false)">
 									<img src="22.png" class="img-fluid" title="22.png">
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-
 			</div>
+
 		</div>
 	</main>
 
-	<footer>
-
-	</footer>
 </body>
-<script>
-	let currentCard = null;
-	let onMultiSelectMode = false;
-	function onEnterLeaveCard(event, isEnter) {
-		if (onMultiSelectMode == false) {
-			var header = event.target.children[0];
-			for (var i = 1; i < header.children.length; i++) {
-				if (isEnter) {
-					header.children[i].classList.remove("hidden");
-				} else {
-					header.children[i].classList.add("hidden");
-				}
-			}
-			if (isEnter) {
-				var tagName = getCardTagName(event.target);
-				var but = header.children[2].children[0];
-				but.children[but.children.length - 1].textContent = String(storage.length - promptLists.get(tagName).length);
-			}
-		}
-	}
-	function selectImage(event, forceMultiSelect) {
-		var imageCard = event.target;
-		if (imageCard.nodeName == "IMG") {
-			imageCard = imageCard.parentNode;
-		}
-
-		if (forceMultiSelect || imageCard.parentNode.parentNode.parentNode.parentNode.classList.contains("on-multiselect")) {
-			imageCard.classList.toggle("on-select");
-		}
-	}
-
-	function toggleMultiSelect(event) {
-		var toggleButton = event.target;
-		toggleButton.classList.toggle("active");
-		var card = toggleButton.parentNode.parentNode.parentNode;
-		card.classList.toggle("on-multiselect");
-		currentCard = toggleButton.classList.contains("active") ? card : null;
-		for (var i = 1; i < toggleButton.parentNode.children.length; i++) {
-			toggleButton.parentNode.children[i].classList.toggle("hidden");
-		}
-		onMultiSelectMode = toggleButton.classList.contains("active");
-		if (onMultiSelectMode == false) {
-			// TODO: delete on-select class in list
-		}
-	}
-
-	function ImageInstance() {
-		this.imgFilename = "";
-		this.promptFilename = "";
-
-		// Array of string
-		this.promptLists = [];
-		this.prompts = "";
-		this.imgDataURL = "";
-	}
-
-	// Array of ImageInstance
-	let storage = [];
-	// Map from prompt to index of storage
-	let promptLists = new Map();
-
-	let dropArea = document.getElementById("DropArea");
-
-	['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-		dropArea.addEventListener(eventName, function (e) {
-			e.preventDefault();
-			e.stopPropagation();
-		}, false);
-	});
-
-	['dragenter', 'dragover'].forEach(eventName => {
-		dropArea.addEventListener(eventName, function (e) {
-			dropArea.classList.add("drop-area-highlight");
-		}, false);
-	});
-
-	['dragleave', 'drop'].forEach(eventName => {
-		dropArea.addEventListener(eventName, function (e) {
-			dropArea.classList.remove("drop-area-highlight");
-		}, false);
-	});
-
-	function clonePromptBox(prompt) {
-		var element = document.getElementById("Template-PromptBox").cloneNode(true);
-		element.classList.remove("template");
-		element.removeAttribute("id");
-
-		element.children[0].children[0].textContent = prompt; // cardTagName
-
-		// clear children
-		var container = element.children[1].children[0];
-		Array.from(container.children).forEach((rowItem) => {
-			container.removeChild(rowItem);
-		});
-
-		return element;
-	}
-
-	dropArea.addEventListener('drop', function (e) {
-		var dt = e.dataTransfer;
-
-		console.log(dt);
-
-		var readTasksSyncPromises = [];
-
-		var pair = new Map(); // filename to ImageInstance
-		[...dt.files].forEach(f => {
-			var filenameWithoutExtension = f.name.replace(/\.[^/.]+$/, "");
-			var imageInstance;
-			if (pair.has(filenameWithoutExtension)) {
-				imageInstance = pair.get(filenameWithoutExtension);
-			} else {
-				imageInstance = new ImageInstance();
-				pair.set(filenameWithoutExtension, imageInstance);
-			}
-
-			if (f.type.startsWith("image/")) {
-				if (imageInstance.imgFilename != "") {
-					alert("Found duplicated image, use the old one: \n\tBefore: " + imageInstance.imgFilename + "\t\tNew: " + f.name)
-				} else {
-					imageInstance.imgFilename = f.name;
-					readTasksSyncPromises.push(new Promise((resolve, reject) => {
-						var imageInstance = pair.get(filenameWithoutExtension);
-						var imageType = f.type;
-
-						var reader = new FileReader();
-						reader.onload = function (e) {
-							const blob = new Blob([new Uint8Array(e.target.result)], { type: imageType });
-							imageInstance.imgDataURL = URL.createObjectURL(blob);
-							// imageInstance.imgDataURL = e.target.result;
-							resolve();
-						};
-						reader.onerror = function (e) {
-							reject(e);
-						}
-						// reader.readAsDataURL(f);
-						reader.readAsArrayBuffer(f);
-					}));
-				}
-			} else if (f.type.startsWith("text")) {
-				if (imageInstance.promptFilename != "") {
-					alert("Found duplicated text, use the old one: \n\tBefore: " + imageInstance.promptFilename + "\t\tNew: " + f.name)
-				} else {
-					imageInstance.promptFilename = f.name;
-					readTasksSyncPromises.push(new Promise((resolve, reject) => {
-						var imageInstance = pair.get(filenameWithoutExtension);
-
-						var reader = new FileReader();
-						reader.onload = function (e) {
-							imageInstance.prompts = e.target.result;
-							imageInstance.promptLists = imageInstance.prompts.split(",").map(item => item.trim()).filter(item => item != "");
-							resolve();
-						};
-						reader.onerror = function (e) {
-							reject(e);
-						}
-						reader.readAsText(f);
-					}));
-				}
-			} else {
-				alert("Unknow file type for this file, ignore: \n\tFile: " + f.name + "\n\tType: " + f.type);
-			}
-		}, false);
-
-		Promise.all(readTasksSyncPromises).then(function () {
-			var deletedDuplicatedTagCounter = 0;
-			for (const [key, value] of pair.entries()) {
-				if (value.imgFilename == "" || value.promptFilename == "") {
-					alert("Cannot find a pair for an instance, skip: \n\tImage: " + value.imgFilename + "\n\tTxt: " + value.promptFilename);
-				} else {
-					const oldSize = value.promptLists.length;
-					value.promptLists = Array.from(new Set(value.promptLists))
-					storage.push(value);
-
-					deletedDuplicatedTagCounter += oldSize - value.promptLists.length;
-				}
-			}
-			alert(`Deleted ${deletedDuplicatedTagCounter} duplicated tags!`);
-
-			var generateTreeNodesPromises = [];
-
-			for (var i = 0; i < storage.length; i++) {
-				storage[i].promptLists.forEach(prompt => {
-					if (promptLists.has(prompt)) {
-						promptLists.get(prompt).push(i);
-					} else {
-						promptLists.set(prompt, [i]);
-					}
-				});
-			}
-
-			var container = document.getElementById("PromptBoxes");
-			for (const [key, value] of promptLists.entries()) {
-				generateTreeNodesPromises.push(new Promise((resolve, reject) => {
-					var promptbox = clonePromptBox(key);
-
-					value.forEach(element => {
-						appendNewImageToCard(promptbox, element);
-					});
-
-					resolve(promptbox);
-				}));
-			}
-
-			Promise.all(generateTreeNodesPromises).then(function (promptboxes) {
-				container.append(...promptboxes);
-			});
-		});
-	}, false);
-
-	function getCardNodeFromButton(buttonNode) {
-		if (buttonNode.nodeName == "I") { // click on icon instead the lable of button
-			buttonNode = buttonNode.parentNode; // now node point to the button
-		}
-
-		return buttonNode.parentNode.parentNode.parentNode;
-	}
-
-	function getCardTagName(cardNode) {
-		return cardNode.children[0].children[0].textContent
-	}
-
-	function appendNewImageToCard(cardNode, indexOfStorage) {
-		const imageInstance = storage[indexOfStorage];
-		var node = document.getElementById("Template-PromptBox-Image").cloneNode(true);
-		node.removeAttribute("id");
-		node.setAttribute("data-id", String(indexOfStorage))
-		var imgNode = node.children[0];
-		imgNode.src = imageInstance.imgDataURL;
-		imgNode.setAttribute("title", imageInstance.imgFilename);
-
-		appendExistedImageToCard(cardNode, node);
-		return node;
-	}
-
-	function appendExistedImageToCard(cardNode, imgNode) {
-		var container = cardNode.children[1].children[0];
-		var lastRow = (container.children.length == 0 ? null : container.children[container.children.length - 1]);
-		if (lastRow == null || lastRow.children.length == 3) { // new row
-			lastRow = document.getElementById("Template-PromptBox-Row").cloneNode(true);
-			lastRow.removeAttribute("id");
-			Array.from(lastRow.children).forEach((item) => {
-				lastRow.removeChild(item);
-			});
-
-			container.appendChild(lastRow);
-		}
-
-		lastRow.appendChild(imgNode);
-	}
-
-	function appendNewImageToContainer(container, indexOfStorage) {
-		const imageInstance = storage[indexOfStorage];
-		var node = document.getElementById("Template-RetrieveBox-Image").cloneNode(true);
-		node.removeAttribute("id");
-		node.setAttribute("data-id", String(indexOfStorage))
-		var imgNode = node.children[0];
-		imgNode.src = imageInstance.imgDataURL;
-		imgNode.setAttribute("title", imageInstance.imgFilename);
-
-		var lastRow = (container.children.length == 0 ? null : container.children[container.children.length - 1]);
-		if (lastRow == null || lastRow.children.length == 3) { // new row
-			lastRow = document.getElementById("Template-RetrieveBox-Row").cloneNode(true);
-			lastRow.classList.remove("template");
-			lastRow.removeAttribute("id");
-			Array.from(lastRow.children).forEach((item) => {
-				lastRow.removeChild(item);
-			});
-
-			container.appendChild(lastRow);
-		}
-
-		lastRow.appendChild(node);
-		return node;
-	}
-
-	function getSelectedImages(cardNode) {
-		var container = cardNode.children[1].children[0];
-		return getSelectedImagesFromContainerOnly(container, true);
-	}
-
-	function getSelectedImagesFromContainerOnly(container, autoAll) {
-		var nodes = [];
-		Array.prototype.forEach.call(container.children, (row) => {
-			Array.prototype.forEach.call(row.children, (item) => {
-				if (item.classList.contains("on-select")) {
-					nodes.push(item);
-				}
-			});
-		});
-		if (autoAll && nodes.length == 0) {
-			Array.prototype.forEach.call(container.children, (row) => {
-				Array.prototype.forEach.call(row.children, (item) => {
-					nodes.push(item);
-				});
-			});
-		}
-		return nodes;
-	}
-
-	function operatingTagClick(event, tagNameNodeId, countNodeId, modalNodeId) {
-		event.preventDefault();
-		event.stopPropagation();
-
-		var node = getCardNodeFromButton(event.target);
-		var tagName = getCardTagName(node);
-
-		var counter = getSelectedImages(node).length;
-
-		document.getElementById(tagNameNodeId).textContent = tagName;
-		document.getElementById(countNodeId).textContent = String(counter);
-		$("#" + modalNodeId).modal('show');
-	}
-
-	function findCard(prompt) {
-		var container = document.getElementById("PromptBoxes");
-
-		var found = null;
-		Array.prototype.forEach.call(container.children, (item) => {
-			if (getCardTagName(item) == prompt) {
-				found = item;
-			}
-		});
-
-		return found;
-	}
-
-	function removeImageFromCard(cardNode, imgNode) {
-		var row = imgNode.parentNode;
-		row.removeChild(imgNode);
-		if (row.children.length == 0) {
-			row.parentNode.removeChild(row);
-		}
-		var container = cardNode.children[1].children[0];
-		if (container.children.length == 0) {
-			if (onMultiSelectMode) {
-				// exit multi select mode before deleting the whole card, otherwise we cannot find the button to exit multiselect mode
-				cardNode.children[0].children[1].children[0].click();
-			}
-			cardNode.parentNode.removeChild(cardNode);
-		}
-	}
-
-	function insertCardAfter(cardPosition, newCard) {
-		var parentElement = cardPosition.parentNode;
-		if (parentElement.lastChild == cardPosition) {
-			parentElement.appendChild(newCard);
-		} else {
-			parentElement.insertBefore(newCard, cardPosition.nextSibling);
-		}
-	}
-
-	function renameTag(event) {
-		event.preventDefault();
-		event.stopPropagation();
-
-		var srcTag = document.getElementById("Rename-SrcTag").textContent;
-		var dstTag = document.getElementById("Rename-DstTag").value.trim();
-
-		if (srcTag == dstTag) {
-			alert("New tag name is same as the old tag name!");
-			$("#RenameTagModal").modal('hide');
-			return;
-		}
-
-		if (dstTag == "") {
-			alert("New tag name is empty! If you want to delete this tag, hit `Remove` next to the `Rename` button.");
-			$("#RenameTagModal").modal('hide');
-			return;
-		}
-
-		// TODO: check duplicated tag and alert user that would merge tags. here we assume merge duplicate tags
-
-		var srcCard = currentCard;
-		var dstCard = findCard(dstTag);
-		if (dstCard == null) {
-			dstCard = clonePromptBox(dstTag);
-			insertCardAfter(srcCard, dstCard);
-			// document.getElementById("PromptBoxes").appendChild(dstCard);
-		}
-
-		var srcTagLists = promptLists.get(srcTag);
-		var dstTagLists = promptLists.has(dstTag) ? promptLists.get(dstTag) : promptLists.set(dstTag, []).get(dstTag);
-
-		var selectedImages = getSelectedImages(srcCard);
-
-		selectedImages.forEach(selectedImageNode => {
-			var id = parseInt(selectedImageNode.getAttribute("data-id"));
-			var alreadyHaveInDst = (dstTagLists.indexOf(id) != -1);
-
-			// Ui
-			removeImageFromCard(srcCard, selectedImageNode);
-			if (!alreadyHaveInDst) {
-				appendExistedImageToCard(dstCard, selectedImageNode);
-			}
-
-			// Logic
-			srcTagLists.splice(srcTagLists.indexOf(id), 1);
-			if (srcTagLists.length == 0) {
-				promptLists.delete(srcTag);
-			}
-			if (!alreadyHaveInDst) {
-				dstTagLists.push(id);
-			}
-
-			var tagIndex = storage[id].promptLists.indexOf(srcTag);
-			if (!alreadyHaveInDst) {
-				storage[id].promptLists[tagIndex] = dstTag;
-			} else {
-				storage[id].promptLists.splice(tagIndex, 1);
-			}
-		});
-
-		if (currentCard != null) {
-			currentCard.children[0].children[1].children[0].click(); // exit multiselect mode
-		}
-		$("#RenameTagModal").modal('hide');
-	}
-
-	function deleteTag(event) {
-		event.preventDefault();
-		event.stopPropagation();
-
-		var tagName = document.getElementById("Delete-Tag").textContent;
-		var tagLists = promptLists.get(tagName);
-
-		var selectedImages = getSelectedImages(currentCard);
-
-		selectedImages.forEach(selectedImageNode => {
-			// UI
-			removeImageFromCard(currentCard, selectedImageNode);
-
-			// Logic
-			var id = parseInt(selectedImageNode.getAttribute("data-id"));
-			tagLists.splice(tagLists.indexOf(id), 1);
-			if (tagLists.length == 0) {
-				promptLists.delete(tagName);
-			}
-
-			var tagIndex = storage[id].promptLists.indexOf(tagName);
-			storage[id].promptLists.splice(tagIndex, 1);
-		});
-
-		if (currentCard != null) {
-			currentCard.children[0].children[1].children[0].click(); // exit multiselect mode
-		}
-		$("#DeleteTagModal").modal('hide');
-	}
-
-	function addTag(event) {
-		// TODO: may have bug, will add duplicate tag to an image
-		event.preventDefault();
-		event.stopPropagation();
-
-		var tagName = document.getElementById("Add-Tag").value.trim();
-		var tagLists = promptLists.get(tagName);
-
-		if (tagName == "") {
-			alert("New tag name is empty!");
-			$("#AddTagModal").modal('hide');
-			return;
-		}
-
-		if (tagName == getCardTagName(currentCard)) {
-			alert("Useless to add the same tag!");
-			$("#AddTagModal").modal('hide');
-			return;
-		}
-
-		var card = findCard(tagName);
-		if (card == null) {
-			card = clonePromptBox(tagName);
-			insertCardAfter(currentCard, card);
-			// document.getElementById("PromptBoxes").appendChild(card);
-		}
-
-		var tagLists = promptLists.has(tagName) ? promptLists.get(tagName) : promptLists.set(tagName, []).get(tagName);
-
-		var selectedImages = getSelectedImages(currentCard);
-
-		selectedImages.forEach(selectedImageNode => {
-			var id = parseInt(selectedImageNode.getAttribute("data-id"));
-			if (tagLists.indexOf(id) != -1) return; // skip already have
-
-			// UI
-			appendNewImageToCard(card, id);
-
-			// Logic
-			tagLists.push(id);
-
-			storage[id].promptLists.push(tagName);
-		});
-
-		if (currentCard != null) {
-			currentCard.children[0].children[1].children[0].click(); // exit multiselect mode
-		}
-		$("#AddTagModal").modal('hide');
-	}
-
-	function exportProject() {
-		if (storage.length == 0) {
-			alert("No images loaded!");
-			return;
-		}
-
-		const zip = new JSZip();
-		storage.forEach((item) => {
-			const prompt = item.promptLists.join(", ");
-			const textContent = new TextEncoder().encode(prompt);
-			const blob = new Blob([textContent], { type: "text/plain" });
-			zip.file(item.promptFilename, blob, { binary: true });
-		});
-
-		zip.generateAsync({ type: "blob" }).then(content => {
-			saveAs(content, "export.zip");
-		});
-	}
-
-	function retrieveTagClick(event) {
-		event.preventDefault();
-		event.stopPropagation();
-
-		var target = event.target;
-		if (target.nodeName == "SPAN") {
-			target = event.target.parentNode;
-		}
-		var node = getCardNodeFromButton(target);
-		var tagName = getCardTagName(node);
-
-		var container = document.getElementById("Retrieve-Container");
-		Array.from(container.children).forEach((rowItem) => {
-			container.removeChild(rowItem);
-		});
-
-		var tagList = promptLists.get(tagName);
-		for (var i = 0; i < storage.length; i++) {
-			if (tagList.indexOf(i) != -1) continue;
-
-			appendNewImageToContainer(container, i);
-		}
-		container.scrollTop = 0;
-
-		document.getElementById("Retrieve-Count").textContent = String(storage.length - tagList.length);
-		document.getElementById("Retrieve-Tag").textContent = tagName;
-
-		updateRetrieve();
-		$("#RetrieveTagModal").modal('show');
-	}
-
-	function updateRetrieve() {
-		var container = document.getElementById("Retrieve-Container");
-		var nodes = getSelectedImagesFromContainerOnly(container, false);
-		document.getElementById("Retrieve-Num").textContent = String(nodes.length);
-	}
-
-	function retrieveImages(evnet) {
-		var tagName = document.getElementById("Retrieve-Tag").textContent;
-		var card = findCard(tagName);
-
-		var container = document.getElementById("Retrieve-Container");
-		var selectedImages = getSelectedImagesFromContainerOnly(container, false);
-
-		selectedImages.forEach(selectedImageNode => {
-			var id = parseInt(selectedImageNode.getAttribute("data-id"));
-
-			// UI
-			appendNewImageToCard(card, id);
-
-			// Logic
-			promptLists.get(tagName).push(id);
-
-			storage[id].promptLists.push(tagName);
-		});
-
-		$("#RetrieveTagModal").modal('hide');
-	}
-
-	let myChartHistogram = echarts.init(document.getElementById('Analysis-Histogram'));
-	function analysisProject() {
-		const promptCounts = Array.from(promptLists, function ([key, value]) {
-			return [key, value.length];
-		});
-		const sortedPromptCounts = promptCounts.sort(function (a, b) {
-			return a[1] - b[1];
-		});
-
-		// sortedPromptCounts is from small to large, transform it to middle large and small at two sides
-		var removeLargest = sortedPromptCounts.slice(0, sortedPromptCounts.length - 1);
-		var oddPositionNumbers = removeLargest.filter((item, index) => index % 2 == 1);
-		var evenPositionNumbers = removeLargest.filter((item, index) => index % 2 == 0);
-		var histogramData = [...evenPositionNumbers, sortedPromptCounts[sortedPromptCounts.length - 1], ...oddPositionNumbers.reverse()];
-
-		var option = {
-			title: {
-				text: "Tag Distribution",
-				left: "center",
-				bottom: "bottom"
-			},
-			tooltip: {},
-			legend: {
-				// data:['销量']
-			},
-			xAxis: {
-				data: Array.from(histogramData, (item) => item[0])
-			},
-			yAxis: {},
-			series: [{
-				// name: '销量',
-				type: 'bar',
-				// data: [5, 20, 36, 10, 10, 20]
-				data: Array.from(histogramData, (item) => item[1])
-			}]
-		};
-		myChartHistogram.setOption(option);
-
-		var triggerWords = promptCounts.filter((item) => item[1] == storage.length).map((item) => item[0]);
-		document.getElementById("Analysis-TriggerWords").textContent = triggerWords.join(", ");
-
-		document.getElementById("Analysis-TotalImages").textContent = String(storage.length);
-
-		$("#AnalysisTagModal").modal('show');
-	}
-
-	$("#AnalysisTagModal").on('shown.bs.modal', function() {
-		myChartHistogram.resize()
-	});
-
-</script>
+<!-- Define global variables & functions -->
+<script src="js/index.js"></script>
+<!-- Each card represent a tag and its images -->
+<script src="js/cardEvents.js"></script>
+<!-- DropArea to build cards -->
+<script src="js/dragAreaEvent.js"></script>
+<!-- Functions called by navbar -->
+<script src="js/navActions.js"></script>
 </html>
