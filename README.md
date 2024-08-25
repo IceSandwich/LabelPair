@@ -42,7 +42,7 @@ In **MultiSelect** mode, you can select some images to add/remove/rename tag. If
 
 **Analysis** shows your tags distribution at the moment.
 
-## Save Your world
+## Save your world
 
 Click `Export` at the top. This will only save txt files. You may consider override source tag files or use diff compare tool to double check.
 

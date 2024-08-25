@@ -304,7 +304,7 @@
 						<a href="#" onclick="exportProject()">Export</a>
 					</li>
 					<li>
-						<a href="#">About</a>
+						<a href="https://github.com/IceSandwich/LabelPair">About</a>
 					</li>
 				</ul>
 			</div>
@@ -952,6 +952,11 @@
 
 	let myChartHistogram = echarts.init(document.getElementById('Analysis-Histogram'));
 	function analysisProject() {
+		if (storage.length == 0) {
+			alert("No images loaded!");
+			return;
+		}
+		
 		const promptCounts = Array.from(promptLists, function ([key, value]) {
 			return [key, value.length];
 		});
