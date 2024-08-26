@@ -19,7 +19,7 @@ let promptLists = new Map();
 let isMultiSelectMode = false;
 /** Current focused card when in multi-select mode */
 let currentCard = null;
-/* ============= Utils functions used in other files =================== */
+/* ============= Utils functions & variables used in other files =================== */
 const templateCardBox = document.getElementById("Template-CardBox");
 const templateCardImg = document.getElementById("Template-CardImage");
 const templateCardRow = document.getElementById("Template-CardRow");

@@ -11,9 +11,13 @@ declare class JSZip {
 declare function saveAs(blob: Blob, filename: string): void;
 
 /** EChats */
+interface EChartsResizeOptions {
+    width: number;
+    height: number;
+}
 interface ECharts extends HTMLElement {
     setOption(data: any): void;
     init(elem: HTMLElement): ECharts;
-    resize(): void;
+    resize(options?: EChartsResizeOptions): void;
 }
 declare let echarts: ECharts;

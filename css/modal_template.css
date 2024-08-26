@@ -23,9 +23,13 @@
     }
 }
 #Analysis-Histogram {
-    width: 100%; 
+    /* width: 100%;  */
     height: 48rem;
 }
 #AnalysisModal .container {
     font-size: large;
+}
+
+#AnalysisModal .modal-body {
+    padding: 0;
 }
