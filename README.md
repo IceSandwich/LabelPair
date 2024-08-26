@@ -48,4 +48,4 @@ Click `Export` at the top. This will only save txt files. You may consider overr
 
 # Build
 
-This project doesn't use webpack so it's unnecessary to build.
+This project doesn't use webpack. Only one thing you need to do is to run `tsc --build`.
