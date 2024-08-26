@@ -1,0 +1,34 @@
+
+.drop-area {
+    height: 16rem;
+    background-color: #eee;
+    border: 3px dashed #aaa;
+    border-radius: 1rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+.drop-area * {
+    text-align: center;
+    width: 100%;
+    user-select: none;
+    font-weight: bold;
+    color: #aaa;
+    font-size: large;
+}
+
+.drop-area i {
+    font-size: xx-large;
+}
+
+.drop-area-highlight {
+    background-color: lightgray;
+}
+
+footer {
+    height: 3rem;
+}

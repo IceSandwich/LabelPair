@@ -1,0 +1,53 @@
+.card {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: .25rem;
+}
+
+.card-header {
+    margin-top: 0;
+    padding: 1rem 2rem;
+    margin-bottom: 0;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, .125);
+    align-items: center;
+    display: flex;
+    height: 6rem;
+}
+
+.card-header:first-child {
+    border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
+}
+
+.card .btn-group {
+    margin-left: 1rem;
+}
+
+.card-body .row, #RetrieveModal .row {
+    margin: 1rem 0;
+}
+
+.image-card {
+    display: flex;
+}
+
+.image-card img {
+    width: 100%;
+    background-color: #eee;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.image-card img:hover {
+    box-shadow: 0 0.3rem 0.8rem;
+}
+
+.on-multiselect {}
+
+.on-multiselect .on-select img, #RetrieveModal .on-select img {
+    background-color: lightgreen;
+    padding: 1.5rem;
+}
