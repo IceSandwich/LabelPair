@@ -93,19 +93,26 @@ dropArea.addEventListener('drop', function (e) {
     }, false);
     Promise.all(readTasksSyncPromises).then(function () {
         var deletedDuplicatedTagCounter = 0;
+        var deletedEmptyTagCounter = 0; // won't happend actually because has filter when loaded txt file, keep for safe
         for (const [key, value] of pair.entries()) {
             if (value.ImgFilename == "" || value.PromptFilename == "") {
                 alert("Cannot find a pair for an instance, skip: \n\tImage: " + value.ImgFilename + "\n\tTxt: " + value.PromptFilename);
             }
             else {
-                const oldSize = value.PromptLists.length;
+                var oldSize = value.PromptLists.length;
                 value.PromptLists = Array.from(new Set(value.PromptLists));
-                storage.push(value);
                 deletedDuplicatedTagCounter += oldSize - value.PromptLists.length;
+                oldSize = value.PromptLists.length;
+                value.PromptLists = value.PromptLists.filter(item => item != "");
+                deletedEmptyTagCounter += oldSize - value.PromptLists.length;
+                storage.push(value);
             }
         }
         if (deletedDuplicatedTagCounter > 0) {
             alert(`Deleted ${deletedDuplicatedTagCounter} duplicated tags!`);
+        }
+        if (deletedEmptyTagCounter > 0) {
+            alert(`Deleted ${deletedEmptyTagCounter} empty tags!`);
         }
         var generateTreeNodesPromises = [];
         for (var i = 0; i < storage.length; i++) {

@@ -123,9 +123,12 @@ function onNavbarExportClick() {
         return;
     }
     const zip = new JSZip();
-    const triggerWords = getTriggerWords().join(", ");
+    let triggerWords = getTriggerWords().join(", ");
+    if (triggerWords != "") {
+        triggerWords = triggerWords + ", ";
+    }
     storage.forEach((item) => {
-        const prompt = triggerWords + ", " + item.PromptLists.filter(val => !triggerWords.includes(val)).join(", ");
+        const prompt = triggerWords + item.PromptLists.filter(val => !triggerWords.includes(val)).join(", ");
         // const prompt = item.PromptLists.join(", ");
         const textContent = new TextEncoder().encode(prompt);
         const blob = new Blob([textContent], { type: "text/plain" });
