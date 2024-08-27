@@ -88,7 +88,7 @@ function AppendImageToRetrieveContainer(indexOfStorage: number) {
     return card;
 }
 function UpdateRetrieve() {
-    var nodes = GetSelectedImages(retrieveContainer, false);
+    var nodes = GetSelectedImages(retrieveContainer, true);
     document.getElementById("Retrieve-Num")!.textContent = String(nodes.length);
 }
 function onRetrieveButtonClick(event: HTMLEvent) {
@@ -278,7 +278,7 @@ function ApplyRetrieveImages(evnet: HTMLEvent) {
         throw Error(`retrieve cannot find a card with ketword ${keyword}`);
     }
 
-    var selectedImages = GetSelectedImages(retrieveContainer, false);
+    var selectedImages = GetSelectedImages(retrieveContainer, true);
     selectedImages.forEach(selectedImageNode => {
         var id = parseInt(selectedImageNode.getAttribute("data-id")!);
 
