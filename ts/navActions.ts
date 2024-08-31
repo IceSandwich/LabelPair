@@ -14,6 +14,49 @@ function getTriggerWords() {
 function contains<T>(big: Array<T>, small: Array<T>) {
     return small.every(item => big.includes(item));
 }
+function UpdateTriggerWords() { // keep order
+    var newTriggerWords = Array.from(promptLists.entries()).filter(item => item[1].length == storage.length).map(item => item[0]);
+    triggerWord = triggerWord.filter(item => newTriggerWords.includes(item));
+    var needAppended = newTriggerWords.filter(item => !triggerWord.includes(item));
+    triggerWord.push(...needAppended);
+}
+function prepareAnalysisTriggerWordsButtons() {
+    UpdateTriggerWords();
+    Array.from(triggerWordContainer.children).forEach(item => triggerWordContainer.removeChild(item));
+    for (var i = 0; i < triggerWord.length; i++) {
+        var node = NewTemplate(TemplateType.TriggerWord);
+        node.children[1].textContent = triggerWord[i];
+        node.setAttribute("data-id", String(i));
+        triggerWordContainer.append(node);
+    }
+}
+function onTriggerWordsButtonClick(event: HTMLEvent, isLeft: boolean) {
+    var operationButton = event.target;
+    if (operationButton.nodeName == "I") { // click on icon instead the lable of button
+        operationButton = operationButton.parentNode! as HTMLElement; // now node point to the button
+    }
+    const KeyIdAttribute = "data-id";
+    const IndexOfWord = 1;
+
+    var wordSpan = operationButton.parentNode! as HTMLElement;
+    var currentId = parseInt(wordSpan.getAttribute(KeyIdAttribute)!);
+    if (isLeft && wordSpan.previousElementSibling != null) {
+        var previousId = parseInt(wordSpan.previousElementSibling.getAttribute(KeyIdAttribute)!);
+        // UI
+        wordSpan.previousElementSibling.children[IndexOfWord].textContent = triggerWord[currentId];
+        wordSpan.children[IndexOfWord].textContent = triggerWord[previousId];
+        // Logic
+        [triggerWord[previousId], triggerWord[currentId]] = [triggerWord[currentId], triggerWord[previousId]];
+    }
+    if (!isLeft && wordSpan.nextElementSibling != null) {
+        var nextId = parseInt(wordSpan.nextElementSibling.getAttribute(KeyIdAttribute)!);
+        // UI
+        wordSpan.nextElementSibling.children[IndexOfWord].textContent = triggerWord[currentId];
+        wordSpan.children[IndexOfWord].textContent = triggerWord[nextId];
+        // Logic
+        [triggerWord[currentId], triggerWord[nextId]] = [triggerWord[nextId], triggerWord[currentId]];
+    }
+}
 function onNavbarAnalysisClick() {
     if (storage.length == 0) {
         alert("No images loaded!");
@@ -88,11 +131,12 @@ function onNavbarAnalysisClick() {
     };
     analysisChart.setOption(option);
 
-    var triggerWords = promptCounts.filter((item) => item.counts == storage.length).map((item) => item.key);
-    document.getElementById("Analysis-TriggerWords")!.textContent = triggerWords.join(", ");
+    UpdateTriggerWords();
+    // document.getElementById("Analysis-TriggerWords")!.textContent = triggerWord.join(", ");
+    prepareAnalysisTriggerWordsButtons();
     document.getElementById("Analysis-TotalImages")!.textContent = `${String(storage.length)} / ${Array.from(promptLists.keys()).length}`;
 
-    let wordsWOTriggers = storage.filter((item) => (item.PromptLists.filter(val => !triggerWords.includes(val))).length == 0);
+    let wordsWOTriggers = storage.filter((item) => (item.PromptLists.filter(val => !triggerWord.includes(val))).length == 0);
     document.getElementById("Analysis-ImagesOnlyTriggerWords")!.textContent = wordsWOTriggers.map(item => item.ImgFilename).join(", ");
 
     let sameWordsMap: Map<string, ImageInstance[]> = new Map();
@@ -132,12 +176,13 @@ function onNavbarExportClick() {
     }
 
     const zip = new JSZip();
-    let triggerWords = getTriggerWords().join(", ");
-    if (triggerWords != "") {
-        triggerWords = triggerWords + ", ";
+    UpdateTriggerWords();
+    let triggerPrefix = triggerWord.join(", ");
+    if (triggerPrefix != "") {
+        triggerPrefix = triggerPrefix + ", ";
     }
     storage.forEach((item) => {
-        const prompt = triggerWords + item.PromptLists.filter(val => !triggerWords.includes(val)).join(", ");
+        const prompt = triggerPrefix + item.PromptLists.filter(val => !triggerPrefix.includes(val)).join(", ");
         // const prompt = item.PromptLists.join(", ");
         const textContent = new TextEncoder().encode(prompt);
         const blob = new Blob([textContent], { type: "text/plain" });

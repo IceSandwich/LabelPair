@@ -23,13 +23,17 @@ let isMultiSelectMode: boolean = false;
 /** Current focused card when in multi-select mode */
 let currentCard: HTMLElement | null = null;
 
+/** Ordered trigger word */
+let triggerWord: string[] = [];
 
 /* ============= Utils functions & variables used in other files =================== */
 const templateCardBox = document.getElementById("Template-CardBox")!;
 const templateCardImg = document.getElementById("Template-CardImage")!;
 const templateCardRow = document.getElementById("Template-CardRow")!;
+const templateTriggerWord = document.getElementById("Template-TriggerWord")!;
 const cardBoxes = document.getElementById("CardBoxes")!;
 const retrieveContainer = document.getElementById("RetrieveContainer")!;
+const triggerWordContainer = document.getElementById("Template-TriggerWordContainer")!;
 const templateRetrieveRow = document.getElementById("Template-RetrieveRow")!;
 const templateRetrieveImg = document.getElementById("Template-RetrieveImg")!;
 let analysisChart = echarts.init(document.getElementById("Analysis-Histogram")!);
@@ -71,6 +75,7 @@ enum TemplateType {
     CardRow,
     RetrieveImg,
     RetrieveRow,
+    TriggerWord,
 }
 function NewTemplate(type: TemplateType) {
     let ret: HTMLElement | null = null;
@@ -103,6 +108,9 @@ function NewTemplate(type: TemplateType) {
             Array.from(ret.children).forEach((rowItem) => {
                 ret!.removeChild(rowItem);
             });
+            break;
+        case TemplateType.TriggerWord:
+            ret = templateTriggerWord.cloneNode(true) as HTMLElement;
             break;
     }
     if (!ret) {

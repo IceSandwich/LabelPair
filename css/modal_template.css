@@ -33,3 +33,7 @@
 #AnalysisModal .modal-body {
     padding: 0;
 }
+
+.trigger-word {
+    padding-right: 1rem;
+}

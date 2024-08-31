@@ -158,8 +158,21 @@
 								</tr>
 								<tr>
 									<td class="text-right">Trigger words:</td>
-									<td>
-										<label class="col-md-10" id="Analysis-TriggerWords"></label>
+									<td id="Template-TriggerWordContainer">
+										<span class="trigger-word" id="Template-TriggerWord" data-id="0">
+											<button onclick="onTriggerWordsButtonClick(event, true)"><i class="fa fa-arrow-left"></i></button>
+											<label>trigger word</label>
+											<button onclick="onTriggerWordsButtonClick(event, false)"><i class="fa fa-arrow-right"></i></button>
+										</span>
+										<span class="trigger-word" id="Template-TriggerWord" data-id="0">
+											<button><i class="fa fa-arrow-left"></i></button>
+											<label>trigger word</label>
+											<button><i class="fa fa-arrow-right"></i></button>
+										</span>
+										<label class="col-md-10" id="Analysis-TriggerWords">
+
+
+										</label>
 									</td>
 								</tr>
 								<tr>
