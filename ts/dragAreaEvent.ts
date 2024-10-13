@@ -30,14 +30,14 @@ dropArea.addEventListener('drop', function (e) {
 
     var readTasksSyncPromises: Promise<boolean>[] = [];
 
-    var pair: Map<string, ImageInstance> = new Map(); // filename to ImageInstance
+    var pair: Map<string, ImageStorage> = new Map(); // filename to ImageInstance
     [...dt.files].forEach(f => {
         var filenameWithoutExtension = f.name.replace(/\.[^/.]+$/, "");
-        var imageInstance: ImageInstance | null = null;
+        var imageInstance: ImageStorage | null = null;
         if (pair.has(filenameWithoutExtension)) {
-            imageInstance = pair.get(filenameWithoutExtension) as ImageInstance;
+            imageInstance = pair.get(filenameWithoutExtension) as ImageStorage;
         } else {
-            imageInstance = new ImageInstance();
+            imageInstance = new ImageStorage();
             pair.set(filenameWithoutExtension, imageInstance);
         }
 
@@ -47,7 +47,7 @@ dropArea.addEventListener('drop', function (e) {
             } else {
                 imageInstance.ImgFilename = f.name;
                 readTasksSyncPromises.push(new Promise((resolve, reject) => {
-                    var imageInstance = pair.get(filenameWithoutExtension)!;
+                    var imageInstance = pair.get(filenameWithoutExtension)!; // do not use old imageInstance in above, get new one
                     var imageType = f.type;
 
                     var reader = new FileReader();
@@ -101,6 +101,8 @@ dropArea.addEventListener('drop', function (e) {
     }, false);
 
     Promise.all(readTasksSyncPromises).then(function () {
+        let appendImages: ImageStorage[] = [];
+
         var deletedDuplicatedTagCounter = 0;
         var deletedEmptyTagCounter = 0; // won't happend actually because has filter when loaded txt file, keep for safe
         for (const [key, value] of pair.entries()) {
@@ -115,7 +117,7 @@ dropArea.addEventListener('drop', function (e) {
                 value.PromptLists = value.PromptLists.filter(item => item != "");
                 deletedEmptyTagCounter += oldSize - value.PromptLists.length;
 
-                storage.push(value);
+                appendImages.push(value);
             }
         }
         if (deletedDuplicatedTagCounter > 0) {
@@ -125,28 +127,21 @@ dropArea.addEventListener('drop', function (e) {
             alert(`Deleted ${deletedEmptyTagCounter} empty tags!`);
         }
 
-        var generateTreeNodesPromises = [];
+        appendImages.forEach((item) => {
+            GlobalImageStorage.push(item);
+            let id = GlobalImageStorage.length - 1;
 
-        for (var i = 0; i < storage.length; i++) {
-            storage[i].PromptLists.forEach(keyword => {
-                if (promptLists.has(keyword)) {
-                    promptLists.get(keyword)!.push(i);
-                } else {
-                    promptLists.set(keyword, [i]);
+            item.PromptLists.forEach(keyword => {
+                let card = GlobalCards.get(keyword);
+                if (!card) {
+                    card = new CardInstance();
+                    card.CreateCard(keyword);
+                    GlobalCards.set(keyword, card);
                 }
-            });
-        }
 
-        for (const [key, value] of promptLists.entries()) {
-            let card = NewTemplate(TemplateType.CardBox);
-            SetCardName(card, key);
-
-            value.forEach(function (elem) {
-                AppendImageToCard(card, elem);
-            });
-
-            cardBoxes.append(card);
-        }
+                card.AppendImage(id);
+            })
+        });
     });
 }, false);
 

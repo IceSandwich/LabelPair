@@ -2,14 +2,28 @@
     width: 76%;
 }
 
-.larger-modal .modal-body {
+.larger-modal .modal-body, .larger-modal .card-body {
     height: 68rem;
 }
 
-#RetrieveContainer {
+#Retrieve-CardBox .container {
     overflow: scroll;
     height: 100%;
 }
+
+#Retrieve-CardBox {
+    border: none;
+}
+
+#Retrieve-CardBox .card-header {
+    display: none;
+}
+
+#Retrieve-CardBox .modal-body {
+    padding: 0;
+}
+
+
 
 .template {
     display: none;

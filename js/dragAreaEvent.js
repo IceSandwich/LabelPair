@@ -32,7 +32,7 @@ dropArea.addEventListener('drop', function (e) {
             imageInstance = pair.get(filenameWithoutExtension);
         }
         else {
-            imageInstance = new ImageInstance();
+            imageInstance = new ImageStorage();
             pair.set(filenameWithoutExtension, imageInstance);
         }
         if (f.type.startsWith("image/")) {
@@ -42,7 +42,7 @@ dropArea.addEventListener('drop', function (e) {
             else {
                 imageInstance.ImgFilename = f.name;
                 readTasksSyncPromises.push(new Promise((resolve, reject) => {
-                    var imageInstance = pair.get(filenameWithoutExtension);
+                    var imageInstance = pair.get(filenameWithoutExtension); // do not use old imageInstance in above, get new one
                     var imageType = f.type;
                     var reader = new FileReader();
                     reader.onload = function (e) {
@@ -92,6 +92,7 @@ dropArea.addEventListener('drop', function (e) {
         }
     }, false);
     Promise.all(readTasksSyncPromises).then(function () {
+        let appendImages = [];
         var deletedDuplicatedTagCounter = 0;
         var deletedEmptyTagCounter = 0; // won't happend actually because has filter when loaded txt file, keep for safe
         for (const [key, value] of pair.entries()) {
@@ -105,7 +106,7 @@ dropArea.addEventListener('drop', function (e) {
                 oldSize = value.PromptLists.length;
                 value.PromptLists = value.PromptLists.filter(item => item != "");
                 deletedEmptyTagCounter += oldSize - value.PromptLists.length;
-                storage.push(value);
+                appendImages.push(value);
             }
         }
         if (deletedDuplicatedTagCounter > 0) {
@@ -114,25 +115,19 @@ dropArea.addEventListener('drop', function (e) {
         if (deletedEmptyTagCounter > 0) {
             alert(`Deleted ${deletedEmptyTagCounter} empty tags!`);
         }
-        var generateTreeNodesPromises = [];
-        for (var i = 0; i < storage.length; i++) {
-            storage[i].PromptLists.forEach(keyword => {
-                if (promptLists.has(keyword)) {
-                    promptLists.get(keyword).push(i);
+        appendImages.forEach((item) => {
+            GlobalImageStorage.push(item);
+            let id = GlobalImageStorage.length - 1;
+            item.PromptLists.forEach(keyword => {
+                let card = GlobalCards.get(keyword);
+                if (!card) {
+                    card = new CardInstance();
+                    card.CreateCard(keyword);
+                    GlobalCards.set(keyword, card);
                 }
-                else {
-                    promptLists.set(keyword, [i]);
-                }
+                card.AppendImage(id);
             });
-        }
-        for (const [key, value] of promptLists.entries()) {
-            let card = NewTemplate(TemplateType.CardBox);
-            SetCardName(card, key);
-            value.forEach(function (elem) {
-                AppendImageToCard(card, elem);
-            });
-            cardBoxes.append(card);
-        }
+        });
     });
 }, false);
 //# sourceMappingURL=dragAreaEvent.js.map

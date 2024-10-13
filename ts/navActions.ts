@@ -2,71 +2,19 @@ interface KWToLength {
     key: string;
     counts: number;
 }
-function getTriggerWords() {
-    const promptCounts: Array<KWToLength> = Array.from(promptLists, function ([key, value]) {
-        return {
-            key: key,
-            counts: value.length
-        }
-    });
-    return promptCounts.filter((item) => item.counts == storage.length).map((item) => item.key)
-}
-function contains<T>(big: Array<T>, small: Array<T>) {
-    return small.every(item => big.includes(item));
-}
-function UpdateTriggerWords() { // keep order
-    var newTriggerWords = Array.from(promptLists.entries()).filter(item => item[1].length == storage.length).map(item => item[0]);
-    triggerWord = triggerWord.filter(item => newTriggerWords.includes(item));
-    var needAppended = newTriggerWords.filter(item => !triggerWord.includes(item));
-    triggerWord.push(...needAppended);
-}
-function prepareAnalysisTriggerWordsButtons() {
-    UpdateTriggerWords();
-    Array.from(triggerWordContainer.children).forEach(item => triggerWordContainer.removeChild(item));
-    for (var i = 0; i < triggerWord.length; i++) {
-        var node = NewTemplate(TemplateType.TriggerWord);
-        node.children[1].textContent = triggerWord[i];
-        node.setAttribute("data-id", String(i));
-        triggerWordContainer.append(node);
-    }
-}
-function onTriggerWordsButtonClick(event: HTMLEvent, isLeft: boolean) {
-    var operationButton = event.target;
-    if (operationButton.nodeName == "I") { // click on icon instead the lable of button
-        operationButton = operationButton.parentNode! as HTMLElement; // now node point to the button
-    }
-    const KeyIdAttribute = "data-id";
-    const IndexOfWord = 1;
 
-    var wordSpan = operationButton.parentNode! as HTMLElement;
-    var currentId = parseInt(wordSpan.getAttribute(KeyIdAttribute)!);
-    if (isLeft && wordSpan.previousElementSibling != null) {
-        var previousId = parseInt(wordSpan.previousElementSibling.getAttribute(KeyIdAttribute)!);
-        // UI
-        wordSpan.previousElementSibling.children[IndexOfWord].textContent = triggerWord[currentId];
-        wordSpan.children[IndexOfWord].textContent = triggerWord[previousId];
-        // Logic
-        [triggerWord[previousId], triggerWord[currentId]] = [triggerWord[currentId], triggerWord[previousId]];
-    }
-    if (!isLeft && wordSpan.nextElementSibling != null) {
-        var nextId = parseInt(wordSpan.nextElementSibling.getAttribute(KeyIdAttribute)!);
-        // UI
-        wordSpan.nextElementSibling.children[IndexOfWord].textContent = triggerWord[currentId];
-        wordSpan.children[IndexOfWord].textContent = triggerWord[nextId];
-        // Logic
-        [triggerWord[currentId], triggerWord[nextId]] = [triggerWord[nextId], triggerWord[currentId]];
-    }
-}
+let GlobalAnalysisChart = echarts.init(document.getElementById("Analysis-Histogram")!);
+
 function onNavbarAnalysisClick() {
-    if (storage.length == 0) {
+    if (GlobalImageStorage.length == 0) {
         alert("No images loaded!");
         return;
     }
 
-    const promptCounts: Array<KWToLength> = Array.from(promptLists, function ([key, value]) {
+    const promptCounts: Array<KWToLength> = Array.from(GlobalCards, function ([key, value]) {
         return {
             key: key,
-            counts: value.length
+            counts: value.GetSize()
         }
     });
     const sortedPromptCounts = promptCounts.sort(function (a, b) {
@@ -120,7 +68,7 @@ function onNavbarAnalysisClick() {
                         formatter: `average`
                     }
                 }, {
-                    yAxis: storage.length,
+                    yAxis: GlobalImageStorage.length,
                     label: {
                         show: true,
                         formatter: `total images`
@@ -129,23 +77,21 @@ function onNavbarAnalysisClick() {
             }
         }]
     };
-    analysisChart.setOption(option);
+    GlobalAnalysisChart.setOption(option);
 
-    UpdateTriggerWords();
-    // document.getElementById("Analysis-TriggerWords")!.textContent = triggerWord.join(", ");
-    prepareAnalysisTriggerWordsButtons();
-    document.getElementById("Analysis-TotalImages")!.textContent = `${String(storage.length)} / ${Array.from(promptLists.keys()).length}`;
+    TriggerWords.GetInstance().Update();
+    document.getElementById("Analysis-TotalImages")!.textContent = `${String(GlobalImageStorage.length)} / ${Array.from(GlobalCards.keys()).length}`;
 
-    let wordsWOTriggers = storage.filter((item) => (item.PromptLists.filter(val => !triggerWord.includes(val))).length == 0);
+    let wordsWOTriggers = GlobalImageStorage.filter((item) => (item.PromptLists.filter(val => !TriggerWords.GetInstance().GetWords().includes(val))).length == 0);
     document.getElementById("Analysis-ImagesOnlyTriggerWords")!.textContent = wordsWOTriggers.map(item => item.ImgFilename).join(", ");
 
-    let sameWordsMap: Map<string, ImageInstance[]> = new Map();
-    for (var i = 0; i < storage.length; i++) {
-        var key = [...new Set(storage[i].PromptLists)].sort().join(", ");
+    let sameWordsMap: Map<string, ImageStorage[]> = new Map();
+    for (var i = 0; i < GlobalImageStorage.length; i++) {
+        var key = [...new Set(GlobalImageStorage[i].PromptLists)].sort().join(", ");
         if (sameWordsMap.has(key)) {
-            sameWordsMap.get(key)?.push(storage[i]);
+            sameWordsMap.get(key)?.push(GlobalImageStorage[i]);
         } else {
-            sameWordsMap.set(key, [storage[i]]);
+            sameWordsMap.set(key, [GlobalImageStorage[i]]);
         }
     }
     let sameWords: string[] = [];
@@ -158,11 +104,11 @@ function onNavbarAnalysisClick() {
     $("#AnalysisModal").modal('show');
 }
 $("#AnalysisModal").on('shown.bs.modal', function () {
-    analysisChart.resize();
+    GlobalAnalysisChart.resize();
     setTimeout(function () {
         let container = document.getElementById("Analysis-Histogram")!;
         console.log(`width: ${container.offsetWidth}, height: ${container.offsetHeight}`);
-        analysisChart.resize({
+        GlobalAnalysisChart.resize({
             width: container.offsetWidth,
             height: container.offsetHeight,
         });
@@ -170,18 +116,18 @@ $("#AnalysisModal").on('shown.bs.modal', function () {
 });
 
 function onNavbarExportClick() {
-    if (storage.length == 0) {
+    if (GlobalImageStorage.length == 0) {
         alert("No images loaded!");
         return;
     }
 
     const zip = new JSZip();
-    UpdateTriggerWords();
-    let triggerPrefix = triggerWord.join(", ");
+    TriggerWords.GetInstance().Update();
+    let triggerPrefix = TriggerWords.GetInstance().GetWords().join(", ");
     if (triggerPrefix != "") {
         triggerPrefix = triggerPrefix + ", ";
     }
-    storage.forEach((item) => {
+    GlobalImageStorage.forEach((item) => {
         const prompt = triggerPrefix + item.PromptLists.filter(val => !triggerPrefix.includes(val)).join(", ");
         // const prompt = item.PromptLists.join(", ");
         const textContent = new TextEncoder().encode(prompt);

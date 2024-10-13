@@ -1,6 +1,6 @@
 "use strict";
 function onCardEnterLeave(event, isEnter) {
-    if (isMultiSelectMode == true)
+    if (GlobalCurrentCard === null || GlobalCurrentCard === void 0 ? void 0 : GlobalCurrentCard.IsOnMultiSelect())
         return; // ignore when in multi-select mode
     let header = event.target.children[0];
     for (var i = 1; i < header.children.length; i++) {
@@ -12,68 +12,57 @@ function onCardEnterLeave(event, isEnter) {
         }
     }
     if (isEnter) {
-        var tagName = GetCardName(event.target);
-        var but = GetOperatorButton(event.target, OperatorButton.Retrieve).children[0];
-        but.children[but.children.length - 1].textContent = String(storage.length - promptLists.get(tagName).length);
+        let card = GlobalCards.get(CardInstance.GetCardName(event.target));
+        var but = card.GetOperatorButton(OperatorButton.Retrieve).children[0];
+        but.children[but.children.length - 1].textContent = String(GlobalImageStorage.length - card.GetSize());
     }
 }
-function SelectImage(event, forceMultiSelect) {
-    var imageCard = event.target;
-    if (imageCard.nodeName == "IMG") {
-        imageCard = imageCard.parentNode;
+/** =======================  Retrieve ==========================  */
+let GlobalRetrieveCardBox = CardInstance.InitFromExistedCard(document.getElementById("Retrieve-CardBox"));
+function UpdateRetrieve() {
+    document.getElementById("Retrieve-Num").textContent = String(GlobalRetrieveCardBox.GetSelectedImages(true).length);
+}
+/** =======================  Image ==========================  */
+function SelectImage(event) {
+    var imageNode = event.target;
+    if (imageNode.nodeName == "IMG") {
+        imageNode = imageNode.parentNode;
     }
-    if (forceMultiSelect || imageCard.parentNode.parentNode.parentNode.parentNode.classList.contains("on-multiselect")) {
-        imageCard.classList.toggle("on-select");
+    let image = ImageInstance.InitFromExistedImageNode(imageNode);
+    let card = CardInstance.InitFromExistedCard(image.GetCardNode());
+    let isInRetrievePanel = card.GetCardName() == "Retrieve";
+    if (isInRetrievePanel || card.IsOnMultiSelect()) {
+        image.ToggleOnSelect();
+    }
+    if (isInRetrievePanel) {
+        UpdateRetrieve();
     }
 }
+/** =======================  Tool click events ==========================  */
+// hide or show tools
 function onMultiSelectClick(event) {
     var toggleButton = event.target;
     toggleButton.classList.toggle("active");
     let operatorBox = toggleButton.parentNode.parentNode;
-    var card = operatorBox.parentNode;
-    card.classList.toggle("on-multiselect");
-    currentCard = toggleButton.classList.contains("active") ? card : null;
+    let card = CardInstance.InitFromExistedCard(operatorBox.parentNode, true);
+    card.ToggleOnMultiSelect();
+    GlobalCurrentCard = card.IsOnMultiSelect() ? card : null;
     let multiSelectTools = toggleButton.parentNode;
     for (var i = 1; i < multiSelectTools.children.length; i++) {
         multiSelectTools.children[i].classList.toggle("hidden");
     }
-    isMultiSelectMode = toggleButton.classList.contains("active");
-    if (isMultiSelectMode == false) {
-        // TODO: delete on-select class in list
-    }
 }
+// show modal dialog
 function onMultiSelectOperatorButtonClick(event, tagNameNodeId, countNodeId, modalNodeId) {
     event.preventDefault();
     event.stopPropagation();
-    var card = GetCardFromOperatorButton(event.target);
-    var counter = GetSelectedImages(GetCardContainer(card), true).length;
-    document.getElementById(tagNameNodeId).textContent = GetCardName(card);
+    let card = GlobalCards.get(CardInstance.GetCardNameFromOperatorButton(event.target));
+    let counter = card.GetSelectedImages(true).length;
+    document.getElementById(tagNameNodeId).textContent = card.GetCardName();
     document.getElementById(countNodeId).textContent = String(counter);
     $(`#${modalNodeId}`).modal('show');
 }
-/** =======================  Retrieve ==========================  */
-function AppendImageToRetrieveContainer(indexOfStorage) {
-    const imageInstance = storage[indexOfStorage];
-    var card = NewTemplate(TemplateType.RetrieveImg);
-    card.setAttribute("data-id", String(indexOfStorage));
-    var imgNode = card.children[0];
-    imgNode.src = imageInstance.ImgDataURL;
-    imgNode.setAttribute("title", imageInstance.ImgFilename);
-    var lastRow = (retrieveContainer.children.length == 0 ? null : retrieveContainer.children[retrieveContainer.children.length - 1]);
-    if (lastRow == null || lastRow.children.length == 3) { // new row
-        lastRow = NewTemplate(TemplateType.RetrieveRow);
-        Array.from(lastRow.children).forEach((item) => {
-            lastRow.removeChild(item);
-        });
-        retrieveContainer.appendChild(lastRow);
-    }
-    lastRow.appendChild(card);
-    return card;
-}
-function UpdateRetrieve() {
-    var nodes = GetSelectedImages(retrieveContainer, true);
-    document.getElementById("Retrieve-Num").textContent = String(nodes.length);
-}
+// show modal dialog only for retrieve
 function onRetrieveButtonClick(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -81,20 +70,13 @@ function onRetrieveButtonClick(event) {
     if (target.nodeName == "SPAN") {
         target = event.target.parentNode;
     }
-    var card = GetCardFromOperatorButton(target);
-    var cardName = GetCardName(card);
-    Array.from(retrieveContainer.children).forEach((rowItem) => {
-        retrieveContainer.removeChild(rowItem);
-    });
-    var tagList = promptLists.get(cardName);
-    for (var i = 0; i < storage.length; i++) {
-        if (tagList.indexOf(i) != -1)
-            continue;
-        AppendImageToRetrieveContainer(i);
-    }
-    retrieveContainer.scrollTop = 0;
-    document.getElementById("Retrieve-Count").textContent = String(storage.length - tagList.length);
-    document.getElementById("Retrieve-Tag").textContent = cardName;
+    let card = GlobalCards.get(CardInstance.GetCardNameFromOperatorButton(target));
+    let retrieveImages = Array.from({ length: GlobalImageStorage.length }, (_, i) => i).filter(id => !card.GetImages().includes(id));
+    GlobalRetrieveCardBox.Clear();
+    retrieveImages.forEach(id => GlobalRetrieveCardBox.AppendImage(id));
+    GlobalRetrieveCardBox.GetCardContainer().scrollTop = 0;
+    document.getElementById("Retrieve-Count").textContent = String(GlobalImageStorage.length - card.GetSize());
+    document.getElementById("Retrieve-Tag").textContent = card.GetCardName();
     UpdateRetrieve();
     $("#RetrieveModal").modal('show');
 }
@@ -114,125 +96,116 @@ function ApplyRenameKeyword(event) {
         $("#RenameModal").modal('hide');
         return;
     }
-    // TODO: check duplicated tag and alert user that would merge tags. here we assume merge duplicate tags
-    var srcCard = currentCard;
-    var dstCard = FindCard(dstTag);
-    if (!dstCard) {
-        dstCard = NewTemplate(TemplateType.CardBox);
-        SetCardName(dstCard, dstTag);
-        InsertCardAfter(srcCard, dstCard);
-    }
-    var srcTagLists = promptLists.get(srcTag);
-    var dstTagLists = promptLists.has(dstTag) ? promptLists.get(dstTag) : promptLists.set(dstTag, []).get(dstTag);
-    var selectedImages = GetSelectedImages(GetCardContainer(srcCard), true);
-    selectedImages.forEach(selectedImageNode => {
-        var id = parseInt(selectedImageNode.getAttribute("data-id"));
-        var alreadyHaveInDst = (dstTagLists.indexOf(id) != -1);
-        // Ui
-        RemoveImageFromCard(srcCard, selectedImageNode);
-        if (!alreadyHaveInDst) {
-            AppendExistedImageToCard(dstCard, selectedImageNode);
-        }
-        // Logic
-        srcTagLists.splice(srcTagLists.indexOf(id), 1);
-        if (srcTagLists.length == 0) {
-            promptLists.delete(srcTag);
-        }
-        if (!alreadyHaveInDst) {
-            dstTagLists.push(id);
-        }
-        var tagIndex = storage[id].PromptLists.indexOf(srcTag);
-        if (!alreadyHaveInDst) {
-            storage[id].PromptLists[tagIndex] = dstTag;
-        }
-        else {
-            storage[id].PromptLists.splice(tagIndex, 1);
-        }
-    });
-    if (currentCard != null) {
-        let but = GetOperatorButton(currentCard, OperatorButton.MultiSelectTools).children[0];
+    if (GlobalCurrentCard != null) {
+        let but = GlobalCurrentCard.GetOperatorButton(OperatorButton.MultiSelectTools).children[0];
         but.click(); // exit multiselect mode
     }
+    // TODO: check duplicated tag and alert user that would merge tags. here we assume merge duplicate tags
+    let srcCard = GlobalCards.get(srcTag);
+    let dstCard = GlobalCards.get(dstTag);
+    if (!dstCard) {
+        dstCard = new CardInstance();
+        dstCard.CreateCard(dstTag, srcCard);
+        GlobalCards.set(dstTag, dstCard);
+    }
+    let selectedImages = srcCard.GetSelectedImages(true).map(ii => ii.GetIndexOfStorage());
+    let appendImages = selectedImages.filter(id => {
+        return !dstCard.GetImages().includes(id);
+    });
+    // Ui
+    appendImages.forEach(id => dstCard.AppendImage(id));
+    srcCard.RemoveImages(selectedImages);
+    if (srcCard.IsEmpty()) {
+        srcCard.DestroyCard();
+        GlobalCards.delete(srcCard.GetCardName());
+    }
+    // Logic
+    selectedImages.forEach(id => {
+        var imageInstance = GlobalImageStorage[id];
+        var tagIndex = imageInstance.PromptLists.indexOf(srcTag);
+        if (appendImages.includes(id)) {
+            imageInstance.PromptLists[tagIndex] = dstTag;
+        }
+        else {
+            imageInstance.PromptLists.splice(tagIndex, 1);
+        }
+    });
     $("#RenameModal").modal('hide');
 }
 function ApplyDeleteKeyword(event) {
     event.preventDefault();
     event.stopPropagation();
-    var tagName = document.getElementById("Delete-Tag").textContent;
-    var tagLists = promptLists.get(tagName);
-    var selectedImages = GetSelectedImages(GetCardContainer(currentCard), true);
-    selectedImages.forEach(selectedImageNode => {
-        // UI
-        RemoveImageFromCard(currentCard, selectedImageNode);
-        // Logic
-        var id = parseInt(selectedImageNode.getAttribute("data-id"));
-        tagLists.splice(tagLists.indexOf(id), 1);
-        if (tagLists.length == 0) {
-            promptLists.delete(tagName);
-        }
-        var tagIndex = storage[id].PromptLists.indexOf(tagName);
-        storage[id].PromptLists.splice(tagIndex, 1);
-    });
-    if (currentCard != null) {
-        let but = GetOperatorButton(currentCard, OperatorButton.MultiSelectTools).children[0];
+    var srcTag = document.getElementById("Delete-Tag").textContent;
+    var srcCard = GlobalCards.get(srcTag);
+    if (GlobalCurrentCard != null) {
+        let but = GlobalCurrentCard.GetOperatorButton(OperatorButton.MultiSelectTools).children[0];
         but.click(); // exit multiselect mode
     }
+    let selectedImages = srcCard.GetSelectedImages(true).map(ii => ii.GetIndexOfStorage());
+    // UI
+    srcCard.RemoveImages(selectedImages);
+    if (srcCard.IsEmpty()) {
+        srcCard.DestroyCard();
+        GlobalCards.delete(srcCard.GetCardName());
+    }
+    // Logic
+    selectedImages.forEach(id => {
+        var imageInstance = GlobalImageStorage[id];
+        imageInstance.PromptLists.splice(imageInstance.PromptLists.indexOf(srcTag), 1);
+    });
     $("#DeleteModal").modal('hide');
 }
 function ApplyAddKeyword(event) {
-    // TODO: may have bug, will add duplicate tag to an image
+    var _a;
     event.preventDefault();
     event.stopPropagation();
-    var tagName = document.getElementById("Add-Tag").value.trim();
-    if (tagName == "") {
+    let srcTag = (_a = document.getElementById("Add-HiddenSrcTag")) === null || _a === void 0 ? void 0 : _a.textContent;
+    let srcCard = GlobalCards.get(srcTag);
+    let dstTag = document.getElementById("Add-Tag").value.trim();
+    let dstCard = GlobalCards.get(dstTag);
+    if (dstTag == "") {
         alert("New tag name is empty!");
         $("#AddModal").modal('hide');
         return;
     }
-    if (tagName == GetCardName(currentCard)) {
+    if (dstTag == srcCard.GetCardName()) {
         alert("Useless to add the same tag!");
         $("#AddModal").modal('hide');
         return;
     }
-    var card = FindCard(tagName);
-    if (!card) {
-        card = NewTemplate(TemplateType.CardBox);
-        SetCardName(card, tagName);
-        InsertCardAfter(currentCard, card);
-        // document.getElementById("PromptBoxes").appendChild(card);
+    if (!dstCard) {
+        dstCard = new CardInstance();
+        dstCard.CreateCard(dstTag, srcCard);
+        GlobalCards.set(dstTag, dstCard);
     }
-    var tagLists = promptLists.has(tagName) ? promptLists.get(tagName) : promptLists.set(tagName, []).get(tagName);
-    var selectedImages = GetSelectedImages(GetCardContainer(currentCard), true);
-    selectedImages.forEach(selectedImageNode => {
-        var id = parseInt(selectedImageNode.getAttribute("data-id"));
-        if (tagLists.indexOf(id) != -1)
-            return; // skip already have
-        // UI
-        AppendImageToCard(card, id);
-        // Logic
-        tagLists.push(id);
-        storage[id].PromptLists.push(tagName);
+    let selectedImages = srcCard.GetSelectedImages(true).map(ii => ii.GetIndexOfStorage());
+    let appendImages = selectedImages.filter(id => {
+        return !dstCard.GetImages().includes(id);
     });
-    if (currentCard != null) {
-        let but = GetOperatorButton(currentCard, OperatorButton.MultiSelectTools).children[0];
+    // Ui
+    appendImages.forEach(id => dstCard.AppendImage(id));
+    // Logic
+    appendImages.forEach(id => {
+        GlobalImageStorage[id].PromptLists.push(dstTag);
+    });
+    if (GlobalCurrentCard != null) {
+        let but = GlobalCurrentCard.GetOperatorButton(OperatorButton.MultiSelectTools).children[0];
         but.click(); // exit multiselect mode
     }
     $("#AddModal").modal('hide');
 }
 function ApplyRetrieveImages(evnet) {
-    var keyword = document.getElementById("Retrieve-Tag").textContent;
-    var card = FindCard(keyword);
-    if (!card) {
-        throw Error(`retrieve cannot find a card with ketword ${keyword}`);
-    }
-    var selectedImages = GetSelectedImages(retrieveContainer, true);
-    selectedImages.forEach(selectedImageNode => {
-        var id = parseInt(selectedImageNode.getAttribute("data-id"));
-        // UI
-        AppendImageToCard(card, id);
-        // Logic
-        promptLists.get(keyword).push(id);
-        storage[id].PromptLists.push(keyword);
+    var tagName = document.getElementById("Retrieve-Tag").textContent;
+    var tagCard = GlobalCards.get(tagName);
+    let selectedImages = GlobalRetrieveCardBox.GetSelectedImages(true).map(ii => ii.GetIndexOfStorage());
+    let appendImages = selectedImages.filter(id => {
+        return !tagCard.GetImages().includes(id);
+    });
+    // Ui
+    appendImages.forEach(id => tagCard.AppendImage(id));
+    // Logic
+    appendImages.forEach(id => {
+        GlobalImageStorage[id].PromptLists.push(tagName);
     });
     $("#RetrieveModal").modal('hide');
 }
