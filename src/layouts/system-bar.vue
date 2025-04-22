@@ -65,12 +65,12 @@
 
 		<v-main style="background: #eef2f6">
 			<PanzoomContainer>
-				<PanzoomNode>
+				<!-- <PanzoomNode>
 
 				</PanzoomNode>
 				<PanzoomNode>
 
-				</PanzoomNode>
+				</PanzoomNode> -->
 			</PanzoomContainer>
 		</v-main>
 	</v-app>
@@ -78,7 +78,7 @@
 
 <script setup lang="ts">
 import PanzoomContainer from '@/components/Panzoom/Container.vue';
-import PanzoomNode from '@/components/Panzoom/Node.vue';
+import PanzoomNode from '@/components/Panzoom/PZNode.vue';
 import { ref } from 'vue';
 
 
