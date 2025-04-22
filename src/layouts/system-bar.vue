@@ -1,20 +1,37 @@
 <template>
 	<v-app theme="PurpleTheme">
-		<v-dialog max-width="500">
-			<template v-slot:default="{ isActive: showModelDialog }">
-				<v-card title="Dialog">
-					<v-card-text>
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-						labore et dolore magna aliqua.
-					</v-card-text>
+		<v-dialog max-width="500" v-model="showModelDialog">
+			<v-card title="Model" prepend-icon="schema">
+				<v-card-text>
+					<v-container fluid>
+						<v-row>
+							<v-col>
+								Use ai model to help you tag your images.
+							</v-col>
+						</v-row>
+						<v-row>
+							<v-col>
+								<v-form>
+									<v-select label="Pretrained Model" :items="pretrainedModels" @update:model-value="onSelectModel"></v-select>
+									<v-slider color="orange" label="Threads" prepend-icon="add" append-icon="remove" thumb-label :min="1" :max="8" :step="1"></v-slider>
+									<v-checkbox label="Warmup"></v-checkbox>
+								</v-form>
+							</v-col>
+						</v-row>
+						<v-row>
+							<v-spacer></v-spacer>
+							<v-btn class="bg-blue-darken-3 text-none" size="large">Initialize model</v-btn>
+						</v-row>
+							
+					</v-container>
+				</v-card-text>
 
-					<v-card-actions>
-						<v-spacer></v-spacer>
+				<!-- <v-card-actions>
+					<v-spacer></v-spacer>
 
-						<v-btn text="Close Dialog" @click="showModelDialog.value = false"></v-btn>
-					</v-card-actions>
-				</v-card>
-			</template>
+					<v-btn text="Close Dialog" @click="showModelDialog = false"></v-btn>
+				</v-card-actions> -->
+			</v-card>
 		</v-dialog>
 
 
@@ -29,14 +46,15 @@
 				<v-btn prepend-icon="download" class="text-none">Export</v-btn>
 				<v-btn prepend-icon="trending_up" class="text-none">Analysis</v-btn>
 				<v-btn prepend-icon="history" class="text-none">History</v-btn>
-				<v-btn prepend-icon="schema" class="text-none" @click="showModelDialog = true; console.log(showModelDialog);">Model</v-btn>
+				<v-btn prepend-icon="schema" class="text-none"
+					@click="showModelDialog = true;">Model</v-btn>
 			</v-toolbar-items>
 
 			<v-spacer></v-spacer>
 
 			<v-toolbar-items>
-				<v-text-field append-inner-icon="search" label="Search" width="400" single-line hide-details>
-				</v-text-field>
+				<v-autocomplete append-inner-icon="search" label="Search" width="400" single-line hide-details :items="tagsToSearch" @update:model-value="onSearchTag">
+				</v-autocomplete>
 			</v-toolbar-items>
 
 			<v-spacer></v-spacer>
@@ -78,11 +96,27 @@
 
 <script setup lang="ts">
 import PanzoomContainer from '@/components/Panzoom/Container.vue';
-import PanzoomNode from '@/components/Panzoom/PZNode.vue';
 import { ref } from 'vue';
 
 
-const showModelDialog = ref(false);
+const showModelDialog = ref(true);
+let pretrainedModels = [
+	"SmalingWolf/wd-v1-4-convnextv2-tagger-v2"
+]
+let tagsToSearch = [
+	"masterpiece",
+	"best quality",
+	"boy"
+]
+
+function onSelectModel(value: string) {
+	console.log("select model: ", value);
+}
+
+function onSearchTag(value: string) {
+	if (value === null) return;
+	console.log("search ", value);
+}
 
 </script>
 
@@ -94,15 +128,3 @@ const showModelDialog = ref(false);
 	text-align: right;
 }
 </style>
-
-<!-- <script setup>
-import { ref } from 'vue'
-
-const drawer = ref(null)
-</script>
-
-<script>
-export default {
-	data: () => ({ drawer: null }),
-}
-</script> -->

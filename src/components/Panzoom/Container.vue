@@ -1,13 +1,13 @@
 ﻿<template>
 	<div class="panzoom-container" ref="container">
-		<!-- <div class="shadow" v-bind:style="{'display': overlay ? 'block': 'none'}">
+		<div class="shadow" v-bind:style="{'display': overlay ? 'block': 'none'}">
 			<p>
 				<v-icon icon="upload" size="large"></v-icon>
 			</p>
 			<p>
 				Add images
 			</p>
-		</div> -->
+		</div>
 
 		<div class="panzoom-canvas" ref="canvas">
 			<!-- <slot ref="slotRef">
@@ -24,12 +24,13 @@
 <script setup lang="ts">
 import Panzoom, { PanzoomObject } from '@panzoom/panzoom';
 import PZNode from './PZNode.vue'
-import { onMounted, onUnmounted, useTemplateRef } from 'vue';
+import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 const nodeA = useTemplateRef("nodeA");
 const nodeB = useTemplateRef("nodeB");
 const container = useTemplateRef("container");
 const canvas = useTemplateRef("canvas");
+let overlay = ref(false);
 
 let panzoom: PanzoomObject = null;
 let panMouseButton = 0; //左键
@@ -82,6 +83,22 @@ function onMouseWheel(e: WheelEvent): void {
 	nodeB.value.SetPanScale(panzoom.getScale());
 }
 
+function onDragEnter(e: DragEvent) {
+	e.preventDefault();
+	e.stopPropagation();
+	overlay.value = true;
+}
+
+function onDrop(e: DragEvent) {
+	console.log("Drag", e.dataTransfer.files);
+}
+
+function onDragExit(e: DragEvent) {
+	e.preventDefault();
+	e.stopPropagation();
+	overlay.value = false;
+}
+
 onMounted(() => {
 	panzoom = Panzoom(canvas.value, {
 		cursor: 'default',
@@ -96,6 +113,14 @@ onMounted(() => {
 	container.value.addEventListener("pointerup", onMouseUp);
 	container.value.addEventListener("pointerleave", onMouseUp);
 	container.value.addEventListener('wheel', onMouseWheel);
+
+	['dragenter', 'dragover'].forEach(eventName => {
+		container.value.addEventListener(eventName, onDragEnter);
+	});
+	['dragleave', 'dragexit', 'drop'].forEach(eventName => {
+		container.value.addEventListener(eventName, onDragExit);
+	});
+	container.value.addEventListener("drop", onDrop);
 })
 
 onUnmounted(() => {
@@ -103,88 +128,14 @@ onUnmounted(() => {
 	container.value?.removeEventListener("pointermove", onMouseMove);
 	container.value?.removeEventListener("pointerup", onMouseUp);
 	container.value?.removeEventListener("pointerleave", onMouseUp);
+
+	container.value?.removeEventListener("dragenter", onDragEnter);
+	container.value?.removeEventListener("dragover", onDragEnter);
+	container.value?.removeEventListener("dragleave", onDragExit);
+	container.value?.removeEventListener("dragexit", onDragExit);
+	container.value?.removeEventListener("drop", onDragExit);
+	container.value?.removeEventListener("drop", onDrop);
 })
-/*
-import Panzoom from '@panzoom/panzoom';
-import { onMounted, ref } from 'vue';
-import Node from './Node.vue';
-
-let overlay = ref(false);
-
-let panMouseButton = 0; //左键
-
-const container = ref(null);
-const canvas = ref(null);
-const slotRef = ref(null);
-
-onMounted(() => {
-	const panzoom = Panzoom(canvas.value, {
-		cursor: 'default',
-		zoomSpeed: 0.065,
-		minZoom: 0.03,
-		maxZoom: 5,
-		noBind: true
-	});
-
-	const handleMouseDown = (e: PointerEvent) => {
-		console.log("down....")
-		if (e.button === panMouseButton) {
-			if (canvas.value.contains(e.target) === false) {
-				panzoom.handleDown(e);
-				e.preventDefault()
-			} else {
-				slotRef.value.handleMouseDown(e);
-			}
-		}
-	}
-
-	const handleMouseMove = (e: PointerEvent) => {
-		console.log("move....")
-		panzoom.handleMove(e);
-		e.preventDefault()
-	}
-
-	const handleMouseUp = (e: PointerEvent) => {
-		console.log("up....")
-		if (e.button === panMouseButton) {
-			if (canvas.value.contains(e.target) === false) {
-				panzoom.handleUp(e);
-				e.preventDefault()
-			} else {
-				slotRef.value.handleMouseDown(e);
-			}
-		}
-	}
-
-	const handleDrop = (e: DragEvent) => {
-		console.log("Drag", e.dataTransfer.files);
-	}
-
-	const containerElement: HTMLElement = container.value;
-	containerElement.addEventListener('wheel', panzoom.zoomWithWheel);
-	containerElement.addEventListener("pointerdown", handleMouseDown);
-	containerElement.addEventListener("pointermove", handleMouseMove);
-	containerElement.addEventListener("pointerup", handleMouseUp);
-	containerElement.addEventListener("pointerleave", handleMouseUp);
-
-	['dragenter', 'dragover'].forEach(eventName => {
-		containerElement.addEventListener(eventName, e => {
-			e.preventDefault();
-			e.stopPropagation();
-			overlay.value = true;
-		});
-	});
-	['dragleave', 'dragexit', 'drop'].forEach(eventName => {
-		containerElement.addEventListener(eventName, e => {
-			e.preventDefault();
-			e.stopPropagation();
-			overlay.value = false;
-		});
-	});
-	containerElement.addEventListener("drop", handleDrop);
-
-})
-*/
 </script>
 
 <style lang="css" scoped>
