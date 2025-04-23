@@ -13,6 +13,7 @@ import { PurpleTheme } from './theme/LightTheme';
 
 // Components
 import App from './App.vue'
+import TagNode from "./components/LabelPair/Nodes/TagNode.vue";
 
 const vuetify = createVuetify({
 	components,
@@ -32,5 +33,10 @@ const vuetify = createVuetify({
 	}
 })
 
-createApp(App).use(vuetify).mount('#app')
+const app = createApp(App)
+app.use(vuetify)
+
+app.component("TagNode", TagNode);
+
+app.mount('#app')
 

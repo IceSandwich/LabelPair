@@ -1,49 +1,61 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-import systemBar from './layouts/system-bar.vue';
-</script>
-
 <template>
-	<systemBar></systemBar>
-	<!-- <header>
-		<img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+	<v-app theme="PurpleTheme">
+		<ModelDialog ref="modelDialog"></ModelDialog>
 
-		<div class="wrapper">
-			<HelloWorld msg="You did it!" />
-		</div>
-	</header>
+		<TopBar 
+			:-tags-to-search="tagsToSearch" 
+			:-status-label="statusLabel"
+			@clicked-show-history="ShowHistoryDialog"
+			@clicked-show-model="modelDialog.ShowDialog()"
+			@on-select-searched-tag="onSelectSearchedTag"
+		></TopBar>
 
-	<main>
-		<TheWelcome />
-	</main> -->
+		<v-main style="background: #eef2f6">
+			<NodeContainer ref="canvas">
+			</NodeContainer>
+		</v-main>
+	</v-app>
 </template>
 
-<style scoped>
-/* header {
-	line-height: 1.5;
+<script setup lang="ts">
+import NodeContainer from '@/components/LabelPair/NodeContainer.vue';
+import { TagNodeData } from '@/components/LabelPair/Nodes/NodeType';
+import TopBar from '@/components/LabelPair/TopBar.vue';
+import ModelDialog from '@/components/LabelPair/Dialogs/model.vue';
+import { ref, useTemplateRef } from 'vue';
+
+let canvas = useTemplateRef("canvas");
+
+let statusLabel = ref("正在加载模型...");
+let tagsToSearch = ref([
+	"masterpiece",
+	"best quality",
+	"boy"
+]);
+
+function ShowHistoryDialog() {
+	console.log("Add tag node");
+
+	let tagNode = new TagNodeData();
+	tagNode.label = "New tag";
+
+	canvas.value.Append(tagNode);
+
 }
 
-.logo {
-	display: block;
-	margin: 0 auto 2rem;
+const modelDialog = useTemplateRef('modelDialog');
+function onSelectSearchedTag(value: string) {
+	console.log("search tag: ", value);
 }
 
-@media (min-width: 1024px) {
-	header {
-		display: flex;
-		place-items: center;
-		padding-right: calc(var(--section-gap) / 2);
-	}
 
-	.logo {
-		margin: 0 2rem 0 0;
-	}
+</script>
 
-	header .wrapper {
-		display: flex;
-		place-items: flex-start;
-		flex-wrap: wrap;
-	}
-} */
+<style lang="css" scoped>
+.status_label {
+	width: 300px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	text-align: right;
+}
 </style>
